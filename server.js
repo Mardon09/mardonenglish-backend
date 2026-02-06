@@ -6,8 +6,11 @@ const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
-  database: process.env.DB_NAME
+  database: process.env.DB_NAME,
+  port: 3306,
+  ssl: { rejectUnauthorized: false }
 });
+
 
 
 db.connect(err => {
@@ -58,7 +61,12 @@ app.post("/login", (req, res) => {
     "SELECT * FROM users WHERE email=?",
     [email],
     async (err, results) => {
-      if (results.length === 0) {
+      if (err) {
+        console.error(err);
+        return res.json({ success: false });
+      }
+
+      if (!results || results.length === 0) {
         return res.json({ success: false });
       }
 
@@ -73,6 +81,7 @@ app.post("/login", (req, res) => {
     }
   );
 });
+
 
 app.post("/save-progress", (req, res) => {
   const { email, skill, score } = req.body;
