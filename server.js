@@ -3,13 +3,14 @@ const bcrypt = require("bcrypt");
 const mysql = require("mysql2");
 
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  port: 3306,
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT,
   ssl: { rejectUnauthorized: false }
 });
+
 
 
 
@@ -35,6 +36,10 @@ let users = [];
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
+  if (!name || !email || !password) {
+    return res.json({ success: false, message: "Missing fields" });
+  }
+
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -43,15 +48,19 @@ app.post("/register", async (req, res) => {
       [name, email, hashedPassword],
       err => {
         if (err) {
-          return res.json({ success: false });
+          console.error("REGISTER SQL ERROR 👉", err);
+          return res.json({ success: false, error: err.message });
         }
         res.json({ success: true, name });
       }
     );
+    
   } catch (err) {
+    console.error(err);
     res.json({ success: false });
   }
 });
+
 
 
 app.post("/login", (req, res) => {
