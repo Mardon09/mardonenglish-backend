@@ -3,11 +3,12 @@ const bcrypt = require("bcrypt");
 const mysql = require("mysql2");
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "MARDONOLIMJONOv$080808",
-  database: "mardonenglish"
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME
 });
+
 
 db.connect(err => {
   if (err) {
@@ -118,6 +119,9 @@ io.on("connection", socket => {
   });
 });
 
-server.listen(3000, () => {
-  console.log("Backend + Socket.io 3000-portda");
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log("Backend running on port " + PORT);
 });
+
